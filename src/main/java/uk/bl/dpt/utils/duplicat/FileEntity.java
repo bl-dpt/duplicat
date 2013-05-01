@@ -10,7 +10,7 @@ import com.sleepycat.persist.model.PrimaryKey;
 public class FileEntity {
 	@PrimaryKey
 	public String id;
-	public List<String> paths = null;
+	public List<Path> paths = null;
 	public String sha256 = null;
 	public String type = null;
 	
@@ -46,14 +46,14 @@ public class FileEntity {
 		return this.type;
 	}
 	
-	public void addPath(String path) {
+	public void addPath(Path path) {
 		if (paths == null) {
-			paths = new ArrayList<String>();
+			paths = new ArrayList<Path>();
 		}
 		paths.add(path);
 	}
 	
-	public List<String> getPaths() {
+	public List<Path> getPaths() {
 		return this.paths;
 	}
 	
@@ -62,8 +62,8 @@ public class FileEntity {
 		sb.append("--digipresInfo--\n");
 		sb.append("SHA256: " + sha256 + "\n");
 		sb.append("PATHS\n");
-		for(String s : paths) {
-			sb.append(s+"\n");
+		for(Path p : paths) {
+			sb.append(p+"\n");
 		}
 		sb.append("----------------\n");
 		return sb.toString();
@@ -75,8 +75,8 @@ public class FileEntity {
 		sb.append("  <sha256> " + sha256 + " </sha256>\n");
 		sb.append("  <type> " + type + " </type>\n");
 		sb.append("  <paths>\n");
-		for(String s : paths) {
-			sb.append("    <path> " + s + " </path>\n");
+		for(Path p : paths) {
+			sb.append("    <path> " + p + " </path>\n");
 		}
 		sb.append("  </paths>\n");
 		sb.append("</digipresInfo>\n");
