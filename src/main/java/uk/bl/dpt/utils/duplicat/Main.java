@@ -1,7 +1,8 @@
 package uk.bl.dpt.utils.duplicat;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,21 +21,60 @@ public class Main {
 	private EntityStore store = null;
 	private FilePathDA pathDA = null;
 
-	private String dbenvPath = "C:/BLWork/DigiPres1/dbenv";
-	private String storeName = "duplicat";
+	private String dbenvPath;
+	private String storeName;
 	private List<String> rootPaths = null;
 
 	private long startTime;
 	private long endTime;
-	private String startPath = "X:/OSMaps";
 	private int numThreads = 8;
-	
+
 	private ExecutorService threadPool;
 	private FileEntityDA fileDA;
 
 	public static void main(String[] args) {
 		Main mi = new Main();
-		mi.go();
+		if ( args.length == 1 ) {
+			mi.go(args[0]);
+		} else {
+			System.out.println("No config file path given");
+			System.exit(-1);
+		}
+	}
+
+	public void init(String confPath) {
+		Config conf = null;
+		try {
+			conf = new Config(confPath);
+		} catch (IOException e) {
+			doErrorAndExit("Unable to read config file: " + confPath);
+		}
+		if (conf != null) {
+			rootPaths = Arrays.asList(conf.getPaths());
+			dbenvPath = conf.getDBEnv();
+			File dbef = new File(dbenvPath);
+			dbef.mkdirs();
+			storeName = conf.getStoreName();
+			numThreads = conf.getNumThreads();
+			threadPool = Executors.newFixedThreadPool(numThreads);
+			try {
+				initDb();
+			} catch (DatabaseException e) {
+				doErrorAndExit("Unable to initialise database: " + e.getMessage());
+			}
+		} else {
+			doErrorAndExit("Config was null.");
+		}
+	}
+
+	private void doErrorAndExit(String msg) {
+		try {
+			closeDb();
+		} catch (DatabaseException e) {
+			// nevermind
+		}
+		System.out.println("\nError:\n" + msg + "\n\n");
+		System.exit(-1);
 	}
 
 	public void initDb() throws DatabaseException {
@@ -60,26 +100,17 @@ public class Main {
 		}
 	}
 
-	public void go() {
+	public void go(String confPath) {
 		startTime = System.currentTimeMillis();
 
-		rootPaths = new ArrayList<String>();
-		rootPaths.add(startPath);
-
-		threadPool = Executors.newFixedThreadPool(numThreads);
-
-		try {
-			initDb();
-		} catch (DatabaseException dbe) {
-			dbe.printStackTrace();
-			System.exit(-1);
-		}
+		init(confPath);
 
 		System.out.println("Clearing files from DB...");
 		DBUtils.purgeIdx(pathDA.getPrimaryIndex());
 		DBUtils.purgeIdx(fileDA.getPrimaryIndex());
 		System.out.println(" Initial DB Counts: P: "
-				+ DBUtils.getCountIdx(pathDA.getPrimaryIndex()) + " F: " + DBUtils.getCountIdx(fileDA.getPrimaryIndex()));
+				+ DBUtils.getCountIdx(pathDA.getPrimaryIndex()) + " F: "
+				+ DBUtils.getCountIdx(fileDA.getPrimaryIndex()));
 
 		for (String path : rootPaths) {
 			File root = new File(path);
@@ -99,24 +130,25 @@ public class Main {
 			EntityCursor<FilePathEntity> ec = idx.entities();
 			FilePathEntity fpe;
 			while ((fpe = ec.next()) != null) {
-				FileInfoExtractThread fred = new FileInfoExtractThread(fpe, new FileEntityDA(store));
+				FileInfoExtractThread fred = new FileInfoExtractThread(fpe,
+						new FileEntityDA(store));
 				threadPool.execute(fred);
 			}
 			ec.close();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 		}
-		
+
 		threadPool.shutdown();
-		
+
 		System.out.print(" ");
-		
+
 		int i = 0;
-		
-		while ( !threadPool.isTerminated() ) {
+
+		while (!threadPool.isTerminated()) {
 			try {
 				Thread.sleep(100);
-				if ( i == 80 ) {
+				if (i == 80) {
 					System.out.print("\n ");
 					i = 0;
 				} else {
@@ -127,11 +159,12 @@ public class Main {
 				// don't really care! :-)
 			}
 		}
-		
+
 		System.out.print("\n");
-		
+
 		System.out.println(" Final DB Counts: P: "
-				+ DBUtils.getCountIdx(pathDA.getPrimaryIndex()) + " F: " + DBUtils.getCountIdx(fileDA.getPrimaryIndex()));
+				+ DBUtils.getCountIdx(pathDA.getPrimaryIndex()) + " F: "
+				+ DBUtils.getCountIdx(fileDA.getPrimaryIndex()));
 
 		try {
 			closeDb();
@@ -139,7 +172,6 @@ public class Main {
 			dbe.printStackTrace();
 			System.exit(-1);
 		}
-
 
 		endTime = System.currentTimeMillis();
 		float timeTaken = (endTime - startTime) / 1000;
