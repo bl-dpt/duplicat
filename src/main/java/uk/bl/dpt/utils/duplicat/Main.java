@@ -7,6 +7,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -20,6 +28,7 @@ public class Main {
 	private Environment env = null;
 	private EntityStore store = null;
 	private FilePathDA pathDA = null;
+	private FileEntityDA fileDA = null;
 
 	private String dbenvPath;
 	private String storeName;
@@ -30,16 +39,41 @@ public class Main {
 	private int numThreads = 8;
 
 	private ExecutorService threadPool;
-	private FileEntityDA fileDA;
 
 	public static void main(String[] args) {
-		Main mi = new Main();
-		if ( args.length == 1 ) {
-			mi.go(args[0]);
-		} else {
-			System.out.println("No config file path given");
+		Options opts = new Options();
+		Option cOpt = new Option("c", true,
+				"The location of the configuration properties file");
+		cOpt.setRequired(true);
+		opts.addOption(cOpt);
+		opts.addOption("l", false,
+				"Lists the content of the dbenv/store given in conf file");
+
+		CommandLineParser parser = new BasicParser();
+		CommandLine cmd = null;
+		try {
+			cmd = parser.parse(opts, args);
+		} catch (MissingOptionException e) {
+			System.out.println("You must specify a config file using -c FILE");
+			System.exit(-1);
+		} catch (ParseException e) {
+			e.printStackTrace();
 			System.exit(-1);
 		}
+
+		Main mi = new Main();
+		if (cmd.hasOption('l')) {
+			mi.list(cmd.getOptionValue('c'));
+		} else {
+			mi.go(cmd.getOptionValue('c'));
+		}
+	}
+
+	private void list(String confPath) {
+		init(confPath);
+		System.out.println(" FilePathEntities Listing ");
+		System.out.println(" ======================== ");
+		DBUtils.listIdx(fileDA.getPrimaryIndex());
 	}
 
 	public void init(String confPath) {
@@ -60,7 +94,8 @@ public class Main {
 			try {
 				initDb();
 			} catch (DatabaseException e) {
-				doErrorAndExit("Unable to initialise database: " + e.getMessage());
+				doErrorAndExit("Unable to initialise database: "
+						+ e.getMessage());
 			}
 		} else {
 			doErrorAndExit("Config was null.");
