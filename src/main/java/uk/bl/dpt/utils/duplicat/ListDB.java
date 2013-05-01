@@ -11,7 +11,7 @@ import com.sleepycat.persist.StoreConfig;
 public class ListDB {
 
 	private Environment env;
-	private String dbenvPath = "./dbEnv";
+	private String dbenvPath = "C:/BLWork/DigiPres1/dbenv";
 	private EntityStore store;
 	private String storeName = "duplicat";
 	

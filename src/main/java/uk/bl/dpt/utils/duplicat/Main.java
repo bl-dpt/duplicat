@@ -20,13 +20,13 @@ public class Main {
 	private EntityStore store = null;
 	private FilePathDA pathDA = null;
 
-	private String dbenvPath = "./dbEnv/";
+	private String dbenvPath = "C:/BLWork/DigiPres1/dbenv";
 	private String storeName = "duplicat";
 	private List<String> rootPaths = null;
 
 	private long startTime;
 	private long endTime;
-	private String startPath = "C:/Users/pcliff/Pictures/Background";
+	private String startPath = "X:/OSMaps";
 	private int numThreads = 8;
 	
 	private ExecutorService threadPool;
@@ -65,9 +65,7 @@ public class Main {
 
 		rootPaths = new ArrayList<String>();
 		rootPaths.add(startPath);
-		rootPaths.add("C:/Users/pcliff/Pictures");
 
-		
 		threadPool = Executors.newFixedThreadPool(numThreads);
 
 		try {
@@ -112,10 +110,19 @@ public class Main {
 		threadPool.shutdown();
 		
 		System.out.print(" ");
+		
+		int i = 0;
+		
 		while ( !threadPool.isTerminated() ) {
 			try {
 				Thread.sleep(100);
-				System.out.print(".");
+				if ( i == 80 ) {
+					System.out.print("\n ");
+					i = 0;
+				} else {
+					System.out.print(".");
+					i++;
+				}
 			} catch (InterruptedException ie) {
 				// don't really care! :-)
 			}
