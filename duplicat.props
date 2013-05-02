@@ -1,0 +1,7 @@
+#Duplicat Duplicate Detection
+#Wed May 01 10:34:52 BST 2013
+db_env=./dbEnv
+store=duplicat
+num_threads=4
+thread_load_wait=5000
+paths=C:/Users/pcliff/Google Drive
