@@ -48,7 +48,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>uk.bl.dpt.utils.duplicat.Main</mainClass>
+							<mainClass>uk.bl.dpt.utils.duplicat.main.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -62,7 +62,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>uk.bl.dpt.utils.duplicat.Main</mainClass>
+							<mainClass>uk.bl.dpt.utils.duplicat.main.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
