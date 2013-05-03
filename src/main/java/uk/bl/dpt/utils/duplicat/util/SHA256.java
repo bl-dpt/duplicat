@@ -9,6 +9,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class SHA256 {
+	private static final String SHA_256 = "SHA-256";
+
 	public String digest(File f) throws IOException {
 		return digest(f, true);
 	}
@@ -23,9 +25,8 @@ public class SHA256 {
 			throws IOException {
 		MessageDigest md = null;
 		try {
-			md = MessageDigest.getInstance("SHA-256");
+			md = MessageDigest.getInstance(SHA_256);
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println("ERROR: NoSuchAlgorithm: Which is odd. Exiting.");
 			System.exit(0);
 		}
 
@@ -35,7 +36,6 @@ public class SHA256 {
 			md.update(data, 0, read);
 		}
 		fis.close();
-		data = null;
 
 		byte[] mdbytes = md.digest();
 
@@ -44,9 +44,7 @@ public class SHA256 {
 			sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16)
 					.substring(1));
 		}
-		
-		mdbytes = null;
-		
+				
 		if (uppercase) {
 			return sb.toString().toUpperCase();
 		} else {

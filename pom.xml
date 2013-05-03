@@ -17,6 +17,19 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<!--version>4.2.1</version-->
+			<version>3.6.2</version>		
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<!-- artifactId>lucene-analyzers-common</artifactId-->
+			<artifactId>lucene-analyzers</artifactId>
+			<!--version>4.2.1</version-->
+			<version>3.6.2</version>	
+		</dependency>
 	</dependencies>
 
 	<repositories>
