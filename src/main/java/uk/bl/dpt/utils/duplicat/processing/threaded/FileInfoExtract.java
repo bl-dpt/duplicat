@@ -42,14 +42,14 @@ public class FileInfoExtract {
 		
 		while ((fpe = fileListCursor.next()) != null) {
 			if ( ( processed % 1000 ) == 0 ) {
-				System.out.printf("Posted %.0f/%.0f [%2.2f %%] - sleeping for 5 secs\n", processed, totalFiles, ((processed/totalFiles)*100.0));
+				System.out.printf("Posted %.0f/%.0f [%2.2f %%] - sleeping for %d secs\n", processed, totalFiles, ((processed/totalFiles)*100.0), (conf.getThreadWait()/1000));
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(conf.getThreadWait());
 				} catch (InterruptedException e) {
 					// nothing really...
 				}
 			}
-			if ( processed >= totalFiles ) {
+			if ( processed >= totalFiles ) { 
 				System.out.printf("Posted %.0f/%.0f [%2.2f %%]\n", processed, totalFiles, ((processed/totalFiles)*100.0));
 			}
 			Thread fred = new FileInfoExtractThread(fpe, fida);
