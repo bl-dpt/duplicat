@@ -4,4 +4,5 @@ db_env=./dbEnv
 store=duplicat
 num_threads=4
 thread_load_wait=5000
-paths=C:/Bucket
+post_count=1000
+paths=C:/Bucket,C:/Bucket
