@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.bl.dpt.utils</groupId>
 	<artifactId>duplicat</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<description>Duplicate search and reporter.</description>
 
 	<dependencies>
